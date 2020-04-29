@@ -11,4 +11,4 @@ with tf.Session(config=config) as sess:
 
     print ("-----------")
     print ("Initializing training!")
-    pk.train(num_epochs=5)
+    pk.train(num_epochs=2)
