@@ -27,7 +27,7 @@ class Model(object):
     """
     def __init__(self, session):        
         self.session = session
-        self.vgg_weights = loadmat('/home/pablo/Documents/Datasets/VGG-Face/vgg-face.mat')
+        self.vgg_weights = loadmat(vggMat)
         
         # -- INPUT PLACEHOLDERS -----------------------------------------------------------
         # ---------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ class Model(object):
         print ('\n\t SETTING  UP THE GRAPH')
 
         with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
-            with tf.device('/device:GPU:0'):
+            with tf.device('/device:CPU:0'):
                 # with tf.device('/device:GPU:0'):
                 
                 # -- NETWORKS -------------------------------------------------------------
@@ -228,7 +228,7 @@ class Model(object):
 
         # -- OPTIMIZERS -------------------------------------------------------------------
         # ---------------------------------------------------------------------------------
-        with tf.device('/device:GPU:0'):
+        with tf.device('/device:CPU:0'):
             # with tf.device('/device:GPU:0'):
             
             EG_learning_rate = tf.compat.v1.train.exponential_decay(

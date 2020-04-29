@@ -17,7 +17,7 @@ imagesDirectory = "/home/pablovin/datasets/Manually_Annotated_Images" #Gcloud
 csvFileValidation ="/home/pablo/dataset/AffectNet/Manually_validation.csv"
 saveDirectoryValidation="/home/pablo/dataset/AffectNet/AffectNetProcessed_Validation/"
 
-csvFileTraining ="/home/pablo/Documents/Datasets/AffectNet/Manually_training.csv"
+csvFileTraining ="/home/pablo/dataset/AffectNet/Manually_training.csv"
 saveDirectoryTraining="/home/pablo/dataset/AffectNet/AffectNetProcessed_Training/"
 
 for csvFile, saveDirectory in zip((csvFileValidation, csvFileTraining), (saveDirectoryValidation,saveDirectoryTraining)):

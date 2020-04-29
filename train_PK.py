@@ -1,8 +1,6 @@
 import PK
 import tensorflow as tf
 
-imagesDirectory = "/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed"
-#
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 # sess = tf.Session(config=config)
