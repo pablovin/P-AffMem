@@ -25,4 +25,4 @@ image_value_range = (-1, 1)
 save_dir='/home/pablo/dataset/AffectNet/ExperimentLog/' #GCloud
 data_path = "/home/pablo/dataset/AffectNet/AffectNetProcessed_Training/" #GCloud
 validation_path  ="/home/pablo/dataset/AffectNet/AffectNetProcessed_Validation/"
-vggMat = "/home/pablo/dataset/AffectNet" #Gcloud
+vggMat = "/home/pablo/dataset/AffectNet/vgg-face.mat" #Gcloud
