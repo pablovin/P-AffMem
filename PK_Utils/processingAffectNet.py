@@ -2,14 +2,23 @@ import csv
 import cv2
 import os
 finalImageSize = 96
-imagesDirectory = "/home/pablo/Documents/Datasets/AffectNet/Manually_Annotated_Images"
 
+"""Local"""
+# imagesDirectory = "/home/pablo/Documents/Datasets/AffectNet/Manually_Annotated_Images" # Local
+# csvFileValidation ="/home/pablo/Documents/Datasets/AffectNet/Manually_validation.csv"
+# saveDirectoryValidation="/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Validation"
+#
+# csvFileTraining ="/home/pablo/Documents/Datasets/AffectNet/Manually_training.csv"
+# saveDirectoryTraining="/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Training"
 
-csvFileValidation ="/home/pablo/Documents/Datasets/AffectNet/Manually_validation.csv"
-saveDirectoryValidation="/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Validation"
+""" G Cloud """
+imagesDirectory = "/home/pablovin/datasets/Manually_Annotated_Images" #Gcloud
+
+csvFileValidation ="/home/pablo/dataset/AffectNet/Manually_validation.csv"
+saveDirectoryValidation="/home/pablo/dataset/AffectNet/AffectNetProcessed_Validation/"
 
 csvFileTraining ="/home/pablo/Documents/Datasets/AffectNet/Manually_training.csv"
-saveDirectoryTraining="/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Training"
+saveDirectoryTraining="/home/pablo/dataset/AffectNet/AffectNetProcessed_Training/"
 
 for csvFile, saveDirectory in zip((csvFileValidation, csvFileTraining), (saveDirectoryValidation,saveDirectoryTraining)):
     with open(csvFile) as csv_file:
