@@ -48,7 +48,3 @@ tensorflow-probability==0.7.0
 Tensorforce==0.5.3
 termcolor==1.1.0
 tqdm==4.42.1
-trfl==1.0.2
-wcwidth==0.1.8
-Werkzeug==1.0.0
-zipp==2.2.0
