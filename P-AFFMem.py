@@ -23,10 +23,8 @@ def runModel():
 
     dataLoader.loadTestData(datasetFolderTest, "", augmentData=False)
 
-   initializeAffMem = True
-   for video in OMGDataset:
-
-
+    initializeAffMem = True
+    for video in OMGDataset:
 	    videoFrames, originalLabel = dataLoader(datasetFolderTrain)
             encodedVideoFrames = []
 	    for frame in videoFrames:

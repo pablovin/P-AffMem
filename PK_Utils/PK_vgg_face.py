@@ -35,7 +35,7 @@ def vgg_face(data, input_maps):
     normalization = meta['normalization']
     average_image = np.squeeze(normalization[0][0]['averageImage'][0][0][0][0])
     image_size = np.squeeze(normalization[0][0]['imageSize'][0][0])
-    input_maps = tf.image.resize_images(input_maps, size=[image_size[0], image_size[1]])
+    input_maps = tf.image.resize(input_maps, size=[image_size[0], image_size[1]])
 
     # read layer info
     layers = data['layers']
@@ -64,7 +64,7 @@ def vgg_face(data, input_maps):
             elif layer_type == 'pool':
                 stride = layer[0]['stride'][0][0]
                 pool = layer[0]['pool'][0][0]
-                current = tf.nn.max_pool(current, ksize=(1, pool[0], pool[1], 1),
+                current = tf.nn.max_pool2d(current, ksize=(1, pool[0], pool[1], 1),
                                          strides=(1, stride[0], stride[0], 1), padding='SAME')
             elif layer_type == 'softmax':
                 current = tf.nn.softmax(tf.reshape(current, [-1, len(class_names)]))

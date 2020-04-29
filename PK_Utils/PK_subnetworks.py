@@ -10,8 +10,8 @@ Implementations of the subnetworks:
 """
 import tensorflow as tf
 import numpy as np
-from layers import dense, conv2d, deconv2d, batch_norm
-from config import size_batch, num_z_channels
+from PK_Utils.PK_layers import dense, conv2d, deconv2d, batch_norm
+from PK_Utils.PK_config import size_batch, num_z_channels
 
 
 # --HELPERS ---------------------------------------
@@ -19,9 +19,9 @@ from config import size_batch, num_z_channels
 def lrelu(inp, leak=0.2):
     """
     Leaky Rectified Linear Unit (ReLu) activation.
-    
+
     @param inp: input tensor
-    
+
     @return: tensor of same size as input tensor
     """
     return tf.maximum(inp, leak*inp)
@@ -30,25 +30,25 @@ def lrelu(inp, leak=0.2):
 def concat_label(tensor, label, duplicate=1):
     """
     Duplicates label and concatenates it to tensor.
-    
-    @param tensor: input tensor 
+
+    @param tensor: input tensor
                    (1) of size [batch_size, length]
                    (2) of size [batch_size, x, x, length]
     @param label: input tensor of size [batch_size, label_length]
-    
+
     @return: (1) tensor of size [batch_size, length+duplicate*label_length]
              (2) tensor of size [batch_size, x, x, length+duplicate*label_length]
-    """ 
+    """
     # duplicate the label to enhance its effect
     label = tf.tile(label, [1, duplicate])
-    
+
     # get shapes of label and tensor
-    tensor_shape = tensor.get_shape().as_list()    
+    tensor_shape = tensor.get_shape().as_list()
     label_shape = label.get_shape().as_list()
-    
+
     # CASE (1)
     if len(tensor_shape) == 2: return tf.concat([tensor, label], 1)
-    
+
     # CASE (2)
     if len(tensor_shape) == 4:
         # reshape label to [batch_size, 1, 1, duplicate*label_length]
@@ -65,17 +65,17 @@ def concat_label(tensor, label, duplicate=1):
 def generator(z, valence, arousal, reuse_variables=False):
     """
     Creates generator network.
-    
+
     @param z: tensor of size config.num_z_channels
     @param valence: tensor of size 1
     @param arousal: tensor of size 1
-    
+
     @return: tensor of size 96x96x3
     """
     if reuse_variables:
-        tf.get_variable_scope().reuse_variables()
+        tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.variable_scope("generator") as scope:
+    with tf.compat.v1.variable_scope("generator") as scope:
 
         # duplicate valence/arousal label and concatenate to z
         z = concat_label(z, valence, duplicate=num_z_channels)
@@ -98,28 +98,28 @@ def generator(z, valence, arousal, reuse_variables=False):
         current = deconv2d(current, 32, stride=1, name='G_deconv5', reuse=reuse_variables)
         current = tf.nn.relu(current)
 
-        current = deconv2d(current, 3, stride=1,  name='G_deconv6', reuse=reuse_variables)    
+        current = deconv2d(current, 3, stride=1,  name='G_deconv6', reuse=reuse_variables)
         return tf.nn.tanh(current)
-        
+
 def encoder(current, reuse_variables=False):
     """
     Creates encoder network.
-    
+
     @param current: tensor of size 96x96x3
-    
+
     @return: tensor of size config.num_z_channels
     """
     if reuse_variables:
-        tf.get_variable_scope().reuse_variables()
+        tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.variable_scope("encoder") as scope:
-        
+    with tf.compat.v1.variable_scope("encoder") as scope:
+
         # -- transposed convolutional layer 1-4
         for index, num_filters in enumerate([64,128,256,512]):
             name = 'E_conv' + str(index)
             current = conv2d(current, num_filters, name=name, reuse=reuse_variables)
             current = tf.nn.relu(current)
-             
+
         # reshape
         current = tf.reshape(current, [size_batch, -1])
 
@@ -127,7 +127,7 @@ def encoder(current, reuse_variables=False):
         name = 'E_fc'
         current = dense(current, num_z_channels, name=name, reuse=reuse_variables)
         return tf.nn.tanh(current)
-    
+
 
 def d_img(current, valence, arousal, reuse_variables=False):
     """
@@ -141,9 +141,9 @@ def d_img(current, valence, arousal, reuse_variables=False):
               (output tensor is of size 1)
     """
     if reuse_variables:
-        tf.get_variable_scope().reuse_variables()
+        tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.variable_scope("d_real") as scope:
+    with tf.compat.v1.variable_scope("d_real") as scope:
 
         # -- convolutional blocks (= convolution+batch_norm+relu) 1-4
         for index, num_filters in enumerate([16, 32, 64, 128]):
@@ -177,20 +177,20 @@ def d_img(current, valence, arousal, reuse_variables=False):
 
 def d_prior(current, reuse_variables=False):
     if reuse_variables:
-        tf.get_variable_scope().reuse_variables()
+        tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.variable_scope("d_prior") as scope:
+    with tf.compat.v1.variable_scope("d_prior") as scope:
 
         #  FC blocks 1-3 (full connection+batch_nom+relu)
         for index, num_filters in enumerate([64,32,16]):
-            name = 'D_prior_fc' + str(index+1)          
+            name = 'D_prior_fc' + str(index+1)
             current = dense(current, num_filters, name=name)
             # batch normalization
             name = 'D_prior_bn' + str(index+1)
             current = batch_norm(current, name, reuse=reuse_variables)
             # relu activation
             current = tf.nn.relu(current)
-            
+
         # FC block 4
         name = 'D_prior_fc' + str(index+2)
         current = dense(current, 1, name=name)
@@ -198,24 +198,38 @@ def d_prior(current, reuse_variables=False):
 
 
 def d_em(current, reuse_variables=False):
-    if reuse_variables:
-        tf.get_variable_scope().reuse_variables()
 
-    with tf.variable_scope("d_em") as scope:
+    if reuse_variables:
+        tf.compat.v1.get_variable_scope().reuse_variables()
+
+    with tf.compat.v1.variable_scope("d_em") as scope:
 
         #  FC blocks 1 (full connection+batch_nom+relu)
-	name = 'D_em_fc1'
-	current = dense(current, 512, name=name)
-	# batch normalization
-	name = 'D_em_bn1'
-	current = batch_norm(current, name, reuse=reuse_variables)
-	# relu activation
-	current = tf.nn.relu(current)
-          
-        # FC block 2
-        name = 'D_em_fc2'
-        current = dense(current, 2, name=name)
-        return tf.nn.sigmoid(current), current
+        # name = 'D_em_fc1'
+        # current = dense(current, 64, name=name)
+        # # batch normalization
+        # name = 'D_em_bn1'
+        # current = batch_norm(current, name)
+        # # relu activation
+        # current = tf.nn.relu(current)
+        for index, num_filters in enumerate([64,32,16]):
+            name = 'D_em_fc1' + str(index+1)
+            current = dense(current, num_filters, name=name)
+            # batch normalization
+            name = 'D_em_bn1' + str(index+1)
+            current = batch_norm(current, name, reuse=reuse_variables)
+            # relu activation
+            current = tf.nn.relu(current)
+
+        # FC block 2_Arousal
+        name = 'D_em_fc2_arousal'
+        current_arousal = dense(current, 1, name=name)
+
+        # FC block 2_Valence
+        name = 'D_em_fc2_arousal'
+        current_valence = dense(current, 1, name=name)
+
+        return tf.nn.sigmoid(current_arousal), tf.nn.sigmoid(current_valence),  current_arousal, current_valence
 
 
 

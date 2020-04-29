@@ -22,15 +22,14 @@ def conv2d(input_map, num_filters, size_kernel=5, stride=2, name=None, reuse=Fal
     
     @return: output tensor
     """
-    return tf.layers.conv2d(input_map, 
+    return tf.keras.layers.Conv2D(
                             filters=num_filters,
                             kernel_size=size_kernel, 
                             strides=stride, 
                             kernel_initializer=tf.truncated_normal_initializer(stddev=0.02),
                             bias_initializer=tf.constant_initializer(0.0),
                             padding="same",
-                            reuse=reuse,
-                            name=name)
+                            name=name)(input_map)
 
 def dense(input_tensor, units, name=None, reuse=False):
     """
@@ -41,13 +40,12 @@ def dense(input_tensor, units, name=None, reuse=False):
 
     @return: output tensor
     """
-    return tf.layers.dense(inputs=input_tensor,
+    return tf.keras.layers.Dense(
                            units=units,
                            use_bias=True,
                            bias_initializer=tf.constant_initializer(0.0),
                            kernel_initializer=tf.random_normal_initializer(stddev=0.02),
-                           reuse=reuse,
-                           name=name)
+                           name=name)(input_tensor)
 
 def deconv2d(input_map, num_filters, size_kernel=5, stride=2, name=None, reuse=False):
     """
@@ -60,15 +58,14 @@ def deconv2d(input_map, num_filters, size_kernel=5, stride=2, name=None, reuse=F
     
     @return: output tensor
     """
-    return tf.layers.conv2d_transpose(input_map, 
+    return tf.keras.layers.Conv2DTranspose(
                                       filters=num_filters, 
                                       kernel_size=size_kernel, 
                                       strides=stride,
                                       kernel_initializer=tf.random_normal_initializer(stddev=0.02),
                                       bias_initializer=tf.constant_initializer(0.0),
                                       padding="same",
-                                      reuse=reuse,
-                                      name=name)
+                                      name=name)(input_map)
 
 def batch_norm(current, name, reuse=False):
     """
@@ -79,8 +76,6 @@ def batch_norm(current, name, reuse=False):
     
     @return: output tensor
     """
-    return tf.contrib.layers.batch_norm(current,
-                                        scale=False,
-                                        scope=name,
-                                        reuse=reuse)
+    return tf.keras.layers.BatchNormalization(name=name,
+                                        scale=False)(current)
                 
