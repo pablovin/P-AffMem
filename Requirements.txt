@@ -6,7 +6,6 @@ bleach==1.5.0
 cloudpickle==1.2.2
 cycler==0.10.0
 decorator==4.4.2
-dlib==19.19.0
 dm-tree==0.1.2
 future==0.18.2
 gast==0.3.3
