@@ -322,7 +322,7 @@ class Model(object):
         print('\n\tPreparing for training ...')
 
         # initialize the graph
-        tf.global_variables_initializer().run()
+        tf.compat.v1.global_variables_initializer().run()
 
         # load check point
         if use_trained_model:
