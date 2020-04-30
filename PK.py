@@ -54,69 +54,69 @@ class Model(object):
             [size_batch, num_z_channels],
             name='z_prior'
         )
-        
-        
+
         # -- GRAPH ------------------------------------------------------------------------
         # ---------------------------------------------------------------------------------
         print ('\n\t SETTING  UP THE GRAPH')
 
         with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
+            # with tf.device('/device:GPU:0'):
+            # with tf.device('/device:GPU:0'):
+
+            # -- NETWORKS -------------------------------------------------------------
+            # -------------------------------------------------------------------------
+
+            # encoder:
+            self.z = encoder(self.input_image)
+
+            # generator: z + arousal + valence --> generated image
+            self.G = generator(self.z,
+                               valence=self.valence,
+                               arousal=self.arousal)
+
+            # discriminator on z
+            self.D_z, self.D_z_logits = d_prior(self.z)
+
+            # discriminator on G
+            self.D_G, self.D_G_logits = d_img(self.G,
+                                                          valence=self.valence,
+                                                          arousal=self.arousal)
+
+            # discriminator on z_prior
+            self.D_z_prior, self.D_z_prior_logits = d_prior(self.z_prior,
+                                                                    reuse_variables=True)
+
+            # discriminator on input image
+            self.D_input, self.D_input_logits = d_img(self.input_image,
+                                                                  valence=self.valence,
+                                                                  arousal=self.arousal,
+                                                                  reuse_variables=True)
+
+
+            # discriminator on arousal/valence
+            #
+            self.D_emArousal, self.D_emValence, self.D_em_arousal_logits, self.D_em_valence_logits = d_em(self.z, reuse_variables=True)
+
+            #
+
+
+            # -- LOSSES ---------------------------------------------------------------
+            # -------------------------------------------------------------------------
+
+            # ---- VGG LOSS ---------------------------------------------------------
+            # The computation of this loss is inherited from the official ExprGan implementation (https://arxiv.org/abs/1709.03842, https://github.com/HuiDingUMD/ExprGAN).
+
             with tf.device('/device:CPU:0'):
-                # with tf.device('/device:GPU:0'):
-                
-                # -- NETWORKS -------------------------------------------------------------
-                # -------------------------------------------------------------------------
-                
-                # encoder:  
-                self.z = encoder(self.input_image)
+                real_conv1_2, real_conv2_2, real_conv3_2, real_conv4_2, real_conv5_2 = face_embedding(self.vgg_weights, self.input_image)
+                fake_conv1_2, fake_conv2_2, fake_conv3_2, fake_conv4_2, fake_conv5_2 = face_embedding(self.vgg_weights, self.G)
 
-                # generator: z + arousal + valence --> generated image   
-                self.G = generator(self.z, 
-                                   valence=self.valence, 
-                                   arousal=self.arousal)
-
-                # discriminator on z
-                self.D_z, self.D_z_logits = d_prior(self.z)
-
-                # discriminator on G
-                self.D_G, self.D_G_logits = d_img(self.G, 
-                                                              valence=self.valence, 
-                                                              arousal=self.arousal)
-
-                # discriminator on z_prior
-                self.D_z_prior, self.D_z_prior_logits = d_prior(self.z_prior,
-                                                                        reuse_variables=True)
-
-                # discriminator on input image
-                self.D_input, self.D_input_logits = d_img(self.input_image,
-                                                                      valence=self.valence,
-                                                                      arousal=self.arousal,
-                                                                      reuse_variables=True)
-                
-
-	        	# discriminator on arousal/valence
-                #
-                self.D_emArousal, self.D_emValence, self.D_em_arousal_logits, self.D_em_valence_logits = d_em(self.z, reuse_variables=True)
-                #
-
-
-                # -- LOSSES ---------------------------------------------------------------
-                # -------------------------------------------------------------------------
-                
-                # ---- VGG LOSS --------------------------------------------------------- 
-                # The computation of this loss is inherited from the official ExprGan implementation (https://arxiv.org/abs/1709.03842, https://github.com/HuiDingUMD/ExprGAN).
-
-                with tf.device('/device:CPU:0'):
-                    real_conv1_2, real_conv2_2, real_conv3_2, real_conv4_2, real_conv5_2 = face_embedding(self.vgg_weights, self.input_image)
-                    fake_conv1_2, fake_conv2_2, fake_conv3_2, fake_conv4_2, fake_conv5_2 = face_embedding(self.vgg_weights, self.G)
-
-                conv1_2_loss = tf.reduce_mean(tf.abs(real_conv1_2 - fake_conv1_2)) / 224. / 224.
-                conv2_2_loss = tf.reduce_mean(tf.abs(real_conv2_2 - fake_conv2_2)) / 112. / 112.
-                conv3_2_loss = tf.reduce_mean(tf.abs(real_conv3_2 - fake_conv3_2)) / 56. / 56.
-                conv4_2_loss = tf.reduce_mean(tf.abs(real_conv4_2 - fake_conv4_2)) / 28. / 28.
-                conv5_2_loss = tf.reduce_mean(tf.abs(real_conv5_2 - fake_conv5_2)) / 14. / 14.
-                self.vgg_loss = conv1_2_loss + conv2_2_loss + conv3_2_loss + conv4_2_loss + conv5_2_loss
-                # -----------------------------------------------------------------------
+            conv1_2_loss = tf.reduce_mean(tf.abs(real_conv1_2 - fake_conv1_2)) / 224. / 224.
+            conv2_2_loss = tf.reduce_mean(tf.abs(real_conv2_2 - fake_conv2_2)) / 112. / 112.
+            conv3_2_loss = tf.reduce_mean(tf.abs(real_conv3_2 - fake_conv3_2)) / 56. / 56.
+            conv4_2_loss = tf.reduce_mean(tf.abs(real_conv4_2 - fake_conv4_2)) / 28. / 28.
+            conv5_2_loss = tf.reduce_mean(tf.abs(real_conv5_2 - fake_conv5_2)) / 14. / 14.
+            self.vgg_loss = conv1_2_loss + conv2_2_loss + conv3_2_loss + conv4_2_loss + conv5_2_loss
+            # -----------------------------------------------------------------------
             
             # reconstruction loss of encoder+generator
             self.EG_loss = tf.reduce_mean(tf.abs(self.input_image - self.G))  # L1 loss
@@ -125,9 +125,11 @@ class Model(object):
             self.D_z_loss_prior = tf.reduce_mean(
                 tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_z_prior_logits, labels=tf.ones_like(self.D_z_prior_logits))
             )
+
             self.D_z_loss_z = tf.reduce_mean(
                 tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_z_logits, labels=tf.zeros_like(self.D_z_logits))
             )
+
             self.E_z_loss = tf.reduce_mean(
                 tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_z_logits, labels=tf.ones_like(self.D_z_logits))
             )
@@ -167,30 +169,30 @@ class Model(object):
 
             # -- SUMMARY ----------------------------------------------------------------------
             # ---------------------------------------------------------------------------------
-            with tf.device('/device:CPU:0'):
-                self.z_summary = tf.compat.v1.summary.histogram('z', self.z)
-                self.z_prior_summary = tf.compat.v1.summary.histogram('z_prior', self.z_prior)
-                self.EG_loss_summary = tf.summary.scalar('EG_loss', self.EG_loss)
-                self.D_z_loss_z_summary = tf.summary.scalar('D_z_loss_z', self.D_z_loss_z)
-                self.D_z_loss_prior_summary = tf.summary.scalar('D_z_loss_prior', self.D_z_loss_prior)
-                self.E_z_loss_summary = tf.summary.scalar('E_z_loss', self.E_z_loss)
-                self.D_z_logits_summary = tf.compat.v1.summary.histogram('D_z_logits', self.D_z_logits)
-                self.D_z_prior_logits_summary = tf.compat.v1.summary.histogram('D_z_prior_logits', self.D_z_prior_logits)
-                self.D_img_loss_input_summary = tf.summary.scalar('D_img_loss_input', self.D_img_loss_input)
-                self.D_img_loss_G_summary = tf.summary.scalar('D_img_loss_G', self.D_img_loss_G)
-                self.G_img_loss_summary = tf.summary.scalar('G_img_loss', self.G_img_loss)
-                self.D_G_logits_summary = tf.compat.v1.summary.histogram('D_G_logits', self.D_G_logits)
-                self.D_input_logits_summary = tf.compat.v1.summary.histogram('D_input_logits', self.D_input_logits)
-                self.D_em_arousal_logits_summary = tf.compat.v1.summary.histogram('D_em_arousal_logits', self.D_em_arousal_logits)
-                self.D_em_valence_logits_summary = tf.compat.v1.summary.histogram('D_em_valence_logits',
-                                                                                  self.D_em_valence_logits)
-                self.D_em_loss_summary = tf.compat.v1.summary.histogram('D_em_loss', self.D_em_loss)
-                self.D_em_ccc_arousal_summary = tf.compat.v1.summary.histogram('D_em_ccc_arousal', self.D_em_ccc_arousal)
-                self.D_em_ccc_valence_summary = tf.compat.v1.summary.histogram('D_em_ccc_valence', self.D_em_ccc_valence)
-                self.vgg_loss_summary = tf.summary.scalar('VGG_loss', self.vgg_loss)
+            # with tf.device('/device:CPU:0'):
+            self.z_summary = tf.compat.v1.summary.histogram('z', self.z)
+            self.z_prior_summary = tf.compat.v1.summary.histogram('z_prior', self.z_prior)
+            self.EG_loss_summary = tf.summary.scalar('EG_loss', self.EG_loss)
+            self.D_z_loss_z_summary = tf.summary.scalar('D_z_loss_z', self.D_z_loss_z)
+            self.D_z_loss_prior_summary = tf.summary.scalar('D_z_loss_prior', self.D_z_loss_prior)
+            self.E_z_loss_summary = tf.summary.scalar('E_z_loss', self.E_z_loss)
+            self.D_z_logits_summary = tf.compat.v1.summary.histogram('D_z_logits', self.D_z_logits)
+            self.D_z_prior_logits_summary = tf.compat.v1.summary.histogram('D_z_prior_logits', self.D_z_prior_logits)
+            self.D_img_loss_input_summary = tf.summary.scalar('D_img_loss_input', self.D_img_loss_input)
+            self.D_img_loss_G_summary = tf.summary.scalar('D_img_loss_G', self.D_img_loss_G)
+            self.G_img_loss_summary = tf.summary.scalar('G_img_loss', self.G_img_loss)
+            self.D_G_logits_summary = tf.compat.v1.summary.histogram('D_G_logits', self.D_G_logits)
+            self.D_input_logits_summary = tf.compat.v1.summary.histogram('D_input_logits', self.D_input_logits)
+            self.D_em_arousal_logits_summary = tf.compat.v1.summary.histogram('D_em_arousal_logits', self.D_em_arousal_logits)
+            self.D_em_valence_logits_summary = tf.compat.v1.summary.histogram('D_em_valence_logits',
+                                                                              self.D_em_valence_logits)
+            self.D_em_loss_summary = tf.compat.v1.summary.histogram('D_em_loss', self.D_em_loss)
+            self.D_em_ccc_arousal_summary = tf.compat.v1.summary.histogram('D_em_ccc_arousal', self.D_em_ccc_arousal)
+            self.D_em_ccc_valence_summary = tf.compat.v1.summary.histogram('D_em_ccc_valence', self.D_em_ccc_valence)
+            self.vgg_loss_summary = tf.summary.scalar('VGG_loss', self.vgg_loss)
 
-                # for saving the graph and variables
-                self.saver = tf.compat.v1.train.Saver(max_to_keep=10)
+            # for saving the graph and variables
+            self.saver = tf.compat.v1.train.Saver(max_to_keep=10)
 
     def train(self,
               num_epochs=2,  # number of epochs
@@ -204,15 +206,15 @@ class Model(object):
 
         # set learning rate decay
         with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
-            with tf.device('/device:CPU:0'):
-                self.EG_global_step = tf.Variable(0, trainable=False, name='global_step')
+            # with tf.device('/device:CPU:0'):
+            self.EG_global_step = tf.Variable(0, trainable=False, name='global_step')
 
         
         # -- LOAD FILE NAMES --------------------------------------------------------------
         # ---------------------------------------------------------------------------------
         
         # ---- TRAINING DATA   
-        file_names = [data_path + x for x in os.listdir(data_path)][0:100000]
+        file_names = [data_path + x for x in os.listdir(data_path)][0:1000]
         file_names = self.fill_up_equally(file_names)
         size_data = len(file_names)
         np.random.shuffle(file_names)
@@ -222,59 +224,60 @@ class Model(object):
 
 
         # ---------------------------------------------------------------------------------
-        self.loss_EG = self.EG_loss + self.D_em_loss*0.02 +  self.vgg_loss*0.3 +  0.01 * self.E_z_loss  + 0.01 * self.G_img_loss 
+        self.loss_EG = self.EG_loss +  self.vgg_loss*0.3 +  0.01 * self.E_z_loss  + 0.01 * self.G_img_loss
+        # self.loss_EG = self.EG_loss + self.D_em_loss * 0.02 + self.vgg_loss * 0.3 + 0.01 * self.E_z_loss + 0.01 * self.G_img_loss
         self.loss_Di = self.D_img_loss_input + self.D_img_loss_G
         self.loss_Dz = self.D_z_loss_prior + self.D_z_loss_z
 
         # -- OPTIMIZERS -------------------------------------------------------------------
         # ---------------------------------------------------------------------------------
-        with tf.device('/device:CPU:0'):
+        # with tf.device('/device:GPU:0'):
             # with tf.device('/device:GPU:0'):
             
-            EG_learning_rate = tf.compat.v1.train.exponential_decay(
-                learning_rate=learning_rate,
-                global_step=self.EG_global_step,
-                decay_steps=size_data / size_batch * 2,
-                decay_rate=decay_rate,
-                staircase=True
-            )
+        EG_learning_rate = tf.compat.v1.train.exponential_decay(
+            learning_rate=learning_rate,
+            global_step=self.EG_global_step,
+            decay_steps=size_data / size_batch * 2,
+            decay_rate=decay_rate,
+            staircase=True
+        )
 
-            # optimizer for encoder + generator
-            self.EG_optimizer = tf.compat.v1.train.AdamOptimizer(
-                learning_rate=EG_learning_rate,
-                beta1=beta1
-            ).minimize(
-                loss=self.loss_EG,
-                global_step=self.EG_global_step,
-                var_list=self.E_variables + self.G_variables
-            )
+        # optimizer for encoder + generator
+        self.EG_optimizer = tf.compat.v1.train.AdamOptimizer(
+            learning_rate=EG_learning_rate,
+            beta1=beta1
+        ).minimize(
+            loss=self.loss_EG,
+            global_step=self.EG_global_step,
+            var_list=self.E_variables + self.G_variables
+        )
 
-            # optimizer for discriminator on z
-            self.D_z_optimizer = tf.compat.v1.train.AdamOptimizer(
-                learning_rate=EG_learning_rate,
-                beta1=beta1
-            ).minimize(
-                loss=self.loss_Dz,
-                var_list=self.D_z_variables
-            )
+        # optimizer for discriminator on z
+        self.D_z_optimizer = tf.compat.v1.train.AdamOptimizer(
+            learning_rate=EG_learning_rate,
+            beta1=beta1
+        ).minimize(
+            loss=self.loss_Dz,
+            var_list=self.D_z_variables
+        )
 
-            # optimizer for discriminator on image
-            self.D_img_optimizer = tf.compat.v1.train.AdamOptimizer(
-                learning_rate=EG_learning_rate,
-                beta1=beta1
-            ).minimize(
-                loss=self.loss_Di,
-                var_list=self.D_img_variables
-            )
-        
-            # optimizer for emotion
-            self.D_em_optimizer = tf.compat.v1.train.AdamOptimizer(
-                learning_rate=EG_learning_rate,
-                beta1=beta1
-            ).minimize(
-                loss=self.D_em_loss,
-                var_list=self.D_em_variables
-            )
+        # optimizer for discriminator on image
+        self.D_img_optimizer = tf.compat.v1.train.AdamOptimizer(
+            learning_rate=EG_learning_rate,
+            beta1=beta1
+        ).minimize(
+            loss=self.loss_Di,
+            var_list=self.D_img_variables
+        )
+
+        # # optimizer for emotion
+        # self.D_em_optimizer = tf.compat.v1.train.AdamOptimizer(
+        #     learning_rate=EG_learning_rate,
+        #     beta1=beta1
+        # ).minimize(
+        #     loss=self.D_em_loss,
+        #     var_list=self.D_em_variables
+        # )
 
 
         # # -- TENSORBOARD WRITER ----------------------------------------------------------
@@ -283,19 +286,19 @@ class Model(object):
 
         # -- TENSORBOARD SUMMARY ----------------------------------------------------------
         # ---------------------------------------------------------------------------------
-        with tf.device('/device:CPU:0'):
-            self.EG_learning_rate_summary = tf.summary.scalar('EG_learning_rate', EG_learning_rate)
-            self.summary = tf.compat.v1.summary.merge([
-                self.z_summary, self.z_prior_summary,
-                self.D_z_loss_z_summary, self.D_z_loss_prior_summary,
-                self.D_z_logits_summary, self.D_z_prior_logits_summary,
-                self.EG_loss_summary, self.E_z_loss_summary,
-                self.D_img_loss_input_summary, self.D_img_loss_G_summary,
-                self.G_img_loss_summary, self.EG_learning_rate_summary,
-                self.D_G_logits_summary, self.D_input_logits_summary,
-                self.vgg_loss_summary, self.D_em_arousal_logits_summary, self.D_em_valence_logits_summary,  self.D_em_loss_summary, self.D_em_ccc_arousal_summary, self.D_em_ccc_valence_summary
-            ])
-            self.writer = tf.summary.FileWriter(os.path.join(save_dir, 'summary'), self.session.graph)
+        # with tf.device('/device:CPU:0'):
+        #     self.EG_learning_rate_summary = tf.summary.scalar('EG_learning_rate', EG_learning_rate)
+        #     self.summary = tf.compat.v1.summary.merge([
+        #         self.z_summary, self.z_prior_summary,
+        #         self.D_z_loss_z_summary, self.D_z_loss_prior_summary,
+        #         self.D_z_logits_summary, self.D_z_prior_logits_summary,
+        #         self.EG_loss_summary, self.E_z_loss_summary,
+        #         self.D_img_loss_input_summary, self.D_img_loss_G_summary,
+        #         self.G_img_loss_summary, self.EG_learning_rate_summary,
+        #         self.D_G_logits_summary, self.D_input_logits_summary,
+        #         self.vgg_loss_summary, self.D_em_arousal_logits_summary, self.D_em_valence_logits_summary,  self.D_em_loss_summary, self.D_em_ccc_arousal_summary, self.D_em_ccc_valence_summary
+        #     ])
+        #     self.writer = tf.summary.FileWriter(os.path.join(save_dir, 'summary'), self.session.graph)
 
         # ************* get some random samples as testing data to visualize the learning process *********************
         sample_files = file_names[0:size_batch]
@@ -356,9 +359,36 @@ class Model(object):
                     [size_batch, num_z_channels]
                 ).astype(np.float32)
 
+                # # update
+                # _, _, _, EG_err, Ez_err, Dz_err, Dzp_err, Gi_err, DiG_err, Di_err, vgg, em, arousalCCC, valenceCCC = self.session.run(
+                #     fetches = [
+                #         self.EG_optimizer,
+                #         self.D_z_optimizer,
+                #         self.D_img_optimizer,
+                #         self.EG_loss,
+                #         self.E_z_loss,
+                #         self.D_z_loss_z,
+                #         self.D_z_loss_prior,
+                #         self.G_img_loss,
+                #         self.D_img_loss_G,
+                #         self.D_img_loss_input,
+                #         # self.tv_loss,
+                #         self.vgg_loss,
+                #         self.D_em_loss,
+	            #     self.D_em_ccc_arousal,
+	            #     self.D_em_ccc_valence
+                #     ],
+                #     feed_dict={
+                #         self.input_image: batch_images,
+                #         self.valence: batch_label_valence,
+                #         self.arousal: batch_label_arousal,
+                #         self.z_prior: batch_z_prior
+                #     }
+                # )
+
                 # update
-                _, _, _, EG_err, Ez_err, Dz_err, Dzp_err, Gi_err, DiG_err, Di_err, vgg, em, arousalCCC, valenceCCC = self.session.run(
-                    fetches = [
+                _, _, _, EG_err, Ez_err, Dz_err, Dzp_err, Gi_err, DiG_err, Di_err, vgg = self.session.run(
+                    fetches=[
                         self.EG_optimizer,
                         self.D_z_optimizer,
                         self.D_img_optimizer,
@@ -370,10 +400,7 @@ class Model(object):
                         self.D_img_loss_G,
                         self.D_img_loss_input,
                         # self.tv_loss,
-                        self.vgg_loss,
-                        self.D_em_loss,
-	                self.D_em_ccc_arousal,
-	                self.D_em_ccc_valence
+                        self.vgg_loss
                     ],
                     feed_dict={
                         self.input_image: batch_images,
@@ -382,11 +409,13 @@ class Model(object):
                         self.z_prior: batch_z_prior
                     }
                 )
-                print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tEG_err=%.4f\tVGG=%.4f\tEm=%.4f" %
-                    (epoch+1, num_epochs, ind_batch+1, num_batches, EG_err, vgg, em))
+                # print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tEG_err=%.4f\tVGG=%.4f\tEm=%.4f" %
+                #     (epoch+1, num_epochs, ind_batch+1, num_batches, EG_err, vgg, em))
+                print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tEG_err=%.4f\tVGG=%.4f" %
+                      (epoch + 1, num_epochs, ind_batch + 1, num_batches, EG_err, vgg))
                 print("\tEz=%.4f\tDz=%.4f\tDzp=%.4f" % (Ez_err, Dz_err, Dzp_err))
                 print("\tGi=%.4f\tDi=%.4f\tDiG=%.4f" % (Gi_err, Di_err, DiG_err))
-                print("\tArousalCCC=%.4f\tValenceCCC=%.4f" % (arousalCCC, valenceCCC))
+                # print("\tArousalCCC=%.4f\tValenceCCC=%.4f" % (arousalCCC, valenceCCC))
 
                 # estimate left run time
                 elapse = time.time() - start_time
@@ -394,16 +423,16 @@ class Model(object):
                 print("\tTime left: %02d:%02d:%02d" %
                       (int(time_left / 3600), int(time_left % 3600 / 60), time_left % 60))
 
-                # add to summary
-                summary = self.summary.eval(
-                    feed_dict={
-                        self.input_image: batch_images,
-                        self.valence: batch_label_valence,
-                        self.arousal: batch_label_arousal,
-                        self.z_prior: batch_z_prior
-                    }
-                )
-                self.writer.add_summary(summary, self.EG_global_step.eval())
+                # # add to summary
+                # summary = self.summary.eval(
+                #     feed_dict={
+                #         self.input_image: batch_images,
+                #         self.valence: batch_label_valence,
+                #         self.arousal: batch_label_arousal,
+                #         self.z_prior: batch_z_prior
+                #     }
+                # )
+                # self.writer.add_summary(summary, self.EG_global_step.eval())
 
                 if ind_batch%500 == 0:
                     # save sample images for each epoch
