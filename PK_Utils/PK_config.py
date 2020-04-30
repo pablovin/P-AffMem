@@ -34,4 +34,4 @@ save_dir='/content/dataset/ExperimentLog/'
 data_path = "/content/dataset/AffectNetProcessed_Training/" #
 validation_path  ="/content/dataset/AffectNetProcessed_Validation/"
 vggMat = "/content/dataset/vgg-face.mat"
-device = '/device:GPU:0'
+device = '/job:localhost/replica:0/task:0/device:GPU:0'
