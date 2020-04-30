@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from PK_Utils.PK_config import device
 
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 # sess = tf.Session(config=config)
 
