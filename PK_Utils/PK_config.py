@@ -14,7 +14,7 @@ size_image = 96
 image_value_range = (-1, 1)
 
 
-# """Local"""
+"""Local"""
 # save_dir='/home/pablo/Documents/Datasets/AffectNet/ExperimentLog/' #Local
 # vggMat = "/home/pablo/Documents/Datasets/VGG-Face/vgg-face.mat" #Local
 # data_path = "/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Training/" #Local
@@ -29,9 +29,9 @@ image_value_range = (-1, 1)
 # vggMat = "/home/pablo/dataset/AffectNet/vgg-face.mat" #Gcloud
 # device = '/device:CPU:0'
 
-"""CoLab"""
+# """CoLab"""
 save_dir='/content/dataset/ExperimentLog/'
 data_path = "/content/dataset/AffectNetProcessed_Training/" #
 validation_path  ="/content/dataset/AffectNetProcessed_Validation/"
 vggMat = "/content/dataset/vgg-face.mat"
-device = '/job:localhost/replica:0/task:0/device:GPU:0'
+device = '/device:GPU:0'

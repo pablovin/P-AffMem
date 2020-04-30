@@ -61,43 +61,43 @@ class Model(object):
 
         with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
             # with tf.device('/device:GPU:0'):
-            # with tf.device('/device:GPU:0'):
+            with tf.device(device):
 
-            # -- NETWORKS -------------------------------------------------------------
-            # -------------------------------------------------------------------------
+                # -- NETWORKS -------------------------------------------------------------
+                # -------------------------------------------------------------------------
 
-            # encoder:
-            self.z = encoder(self.input_image)
+                # encoder:
+                self.z = encoder(self.input_image)
 
-            # generator: z + arousal + valence --> generated image
-            self.G = generator(self.z,
-                               valence=self.valence,
-                               arousal=self.arousal)
+                # generator: z + arousal + valence --> generated image
+                self.G = generator(self.z,
+                                   valence=self.valence,
+                                   arousal=self.arousal)
 
-            # discriminator on z
-            self.D_z, self.D_z_logits = d_prior(self.z)
+                # discriminator on z
+                self.D_z, self.D_z_logits = d_prior(self.z)
 
-            # discriminator on G
-            self.D_G, self.D_G_logits = d_img(self.G,
-                                                          valence=self.valence,
-                                                          arousal=self.arousal)
+                # discriminator on G
+                self.D_G, self.D_G_logits = d_img(self.G,
+                                                              valence=self.valence,
+                                                              arousal=self.arousal)
 
-            # discriminator on z_prior
-            self.D_z_prior, self.D_z_prior_logits = d_prior(self.z_prior,
-                                                                    reuse_variables=True)
+                # discriminator on z_prior
+                self.D_z_prior, self.D_z_prior_logits = d_prior(self.z_prior,
+                                                                        reuse_variables=True)
 
-            # discriminator on input image
-            self.D_input, self.D_input_logits = d_img(self.input_image,
-                                                                  valence=self.valence,
-                                                                  arousal=self.arousal,
-                                                                  reuse_variables=True)
+                # discriminator on input image
+                self.D_input, self.D_input_logits = d_img(self.input_image,
+                                                                      valence=self.valence,
+                                                                      arousal=self.arousal,
+                                                                      reuse_variables=True)
 
 
-            # discriminator on arousal/valence
-            #
-            self.D_emArousal, self.D_emValence, self.D_em_arousal_logits, self.D_em_valence_logits = d_em(self.z, reuse_variables=True)
+                # discriminator on arousal/valence
+                #
+                self.D_emArousal, self.D_emValence, self.D_em_arousal_logits, self.D_em_valence_logits = d_em(self.z, reuse_variables=True)
 
-            #
+                #
 
 
             # -- LOSSES ---------------------------------------------------------------
@@ -206,8 +206,8 @@ class Model(object):
 
         # set learning rate decay
         with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
-            # with tf.device('/device:CPU:0'):
-            self.EG_global_step = tf.Variable(0, trainable=False, name='global_step')
+            with tf.device('/device:CPU:0'):
+                self.EG_global_step = tf.Variable(0, trainable=False, name='global_step')
 
         
         # -- LOAD FILE NAMES --------------------------------------------------------------
@@ -231,53 +231,53 @@ class Model(object):
 
         # -- OPTIMIZERS -------------------------------------------------------------------
         # ---------------------------------------------------------------------------------
-        # with tf.device('/device:GPU:0'):
+        with tf.device(device):
             # with tf.device('/device:GPU:0'):
             
-        EG_learning_rate = tf.compat.v1.train.exponential_decay(
-            learning_rate=learning_rate,
-            global_step=self.EG_global_step,
-            decay_steps=size_data / size_batch * 2,
-            decay_rate=decay_rate,
-            staircase=True
-        )
+            EG_learning_rate = tf.compat.v1.train.exponential_decay(
+                learning_rate=learning_rate,
+                global_step=self.EG_global_step,
+                decay_steps=size_data / size_batch * 2,
+                decay_rate=decay_rate,
+                staircase=True
+            )
 
-        # optimizer for encoder + generator
-        self.EG_optimizer = tf.compat.v1.train.AdamOptimizer(
-            learning_rate=EG_learning_rate,
-            beta1=beta1
-        ).minimize(
-            loss=self.loss_EG,
-            global_step=self.EG_global_step,
-            var_list=self.E_variables + self.G_variables
-        )
+            # optimizer for encoder + generator
+            self.EG_optimizer = tf.compat.v1.train.AdamOptimizer(
+                learning_rate=EG_learning_rate,
+                beta1=beta1
+            ).minimize(
+                loss=self.loss_EG,
+                global_step=self.EG_global_step,
+                var_list=self.E_variables + self.G_variables
+            )
 
-        # optimizer for discriminator on z
-        self.D_z_optimizer = tf.compat.v1.train.AdamOptimizer(
-            learning_rate=EG_learning_rate,
-            beta1=beta1
-        ).minimize(
-            loss=self.loss_Dz,
-            var_list=self.D_z_variables
-        )
+            # optimizer for discriminator on z
+            self.D_z_optimizer = tf.compat.v1.train.AdamOptimizer(
+                learning_rate=EG_learning_rate,
+                beta1=beta1
+            ).minimize(
+                loss=self.loss_Dz,
+                var_list=self.D_z_variables
+            )
 
-        # optimizer for discriminator on image
-        self.D_img_optimizer = tf.compat.v1.train.AdamOptimizer(
-            learning_rate=EG_learning_rate,
-            beta1=beta1
-        ).minimize(
-            loss=self.loss_Di,
-            var_list=self.D_img_variables
-        )
+            # optimizer for discriminator on image
+            self.D_img_optimizer = tf.compat.v1.train.AdamOptimizer(
+                learning_rate=EG_learning_rate,
+                beta1=beta1
+            ).minimize(
+                loss=self.loss_Di,
+                var_list=self.D_img_variables
+            )
 
-        # # optimizer for emotion
-        # self.D_em_optimizer = tf.compat.v1.train.AdamOptimizer(
-        #     learning_rate=EG_learning_rate,
-        #     beta1=beta1
-        # ).minimize(
-        #     loss=self.D_em_loss,
-        #     var_list=self.D_em_variables
-        # )
+            # # optimizer for emotion
+            # self.D_em_optimizer = tf.compat.v1.train.AdamOptimizer(
+            #     learning_rate=EG_learning_rate,
+            #     beta1=beta1
+            # ).minimize(
+            #     loss=self.D_em_loss,
+            #     var_list=self.D_em_variables
+            # )
 
 
         # # -- TENSORBOARD WRITER ----------------------------------------------------------
