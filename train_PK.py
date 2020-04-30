@@ -7,7 +7,7 @@ config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 # sess = tf.Session(config=config)
 
-with tf.compat.v1.Session(config=config) as sess:
+with tf.Session(config=config) as sess:
     pk = PK.Model(sess)
 
     print ("-----------")
