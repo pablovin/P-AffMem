@@ -214,7 +214,7 @@ class Model(object):
         # ---------------------------------------------------------------------------------
         
         # ---- TRAINING DATA   
-        file_names = [data_path + x for x in os.listdir(data_path)][0:10000]
+        file_names = [data_path + x for x in os.listdir(data_path)][0:100000]
         file_names = self.fill_up_equally(file_names)
         size_data = len(file_names)
         np.random.shuffle(file_names)
