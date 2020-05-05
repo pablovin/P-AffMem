@@ -18,7 +18,7 @@ def load_image(
     # image = imresize(image, [image_size, image_size])
     image = cv2.resize(image, (image_size, image_size))
     image = image.astype(np.float32) * (image_value_range[-1] - image_value_range[0]) / 255.0 + image_value_range[0]
-
+    # image = image.astype(np.float32)/255.0
     return image
 
 
@@ -29,8 +29,9 @@ def save_batch_images(
         size_frame=None     # size of the image matrix, number of images in each row and column
 ):
     # transform from 0~1 to pixel value
-    # images = (batch_images - image_value_range[0]) / (image_value_range[-1] - image_value_range[0])
-    images = (batch_images + 1) / 2 * 255
+    images = (batch_images - image_value_range[0]) / (image_value_range[-1] - image_value_range[0])
+    images = images*255
+    # images = (batch_images + 1) / 2 * 255
     if size_frame is None:
         auto_size = int(np.ceil(np.sqrt(images.shape[0])))
         size_frame = [auto_size, auto_size]
@@ -75,8 +76,9 @@ def get_images_frame(
         size_frame=None  # size of the image matrix, number of images in each row and column
 ):
     # transform the pixcel value to 0~1
-    # images = (batch_images - image_value_range[0]) / (image_value_range[-1] - image_value_range[0])
-    images = (batch_images + 1) / 2 * 255
+    images = (batch_images - image_value_range[0]) / (image_value_range[-1] - image_value_range[0])
+    images = images * 255
+    # images = (batch_images + 1) / 2 * 255
     if size_frame is None:
         auto_size = int(np.ceil(np.sqrt(images.shape[0])))
         size_frame = [auto_size, auto_size]

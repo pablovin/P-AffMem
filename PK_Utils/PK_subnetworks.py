@@ -75,7 +75,7 @@ def generator(z, valence, arousal, reuse_variables=False):
     if reuse_variables:
         tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.compat.v1.variable_scope("generator") as scope:
+    with tf.compat.v1.variable_scope("G") as scope:
 
         # duplicate valence/arousal label and concatenate to z
         z = concat_label(z, valence, duplicate=num_z_channels)
@@ -112,7 +112,7 @@ def encoder(current, reuse_variables=False):
     if reuse_variables:
         tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.compat.v1.variable_scope("encoder") as scope:
+    with tf.compat.v1.variable_scope("E") as scope:
 
         # -- transposed convolutional layer 1-4
         for index, num_filters in enumerate([64,128,256,512]):
@@ -143,7 +143,7 @@ def d_img(current, valence, arousal, reuse_variables=False):
     if reuse_variables:
         tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.compat.v1.variable_scope("d_real") as scope:
+    with tf.compat.v1.variable_scope("D_img") as scope:
 
         # -- convolutional blocks (= convolution+batch_norm+relu) 1-4
         for index, num_filters in enumerate([16, 32, 64, 128]):
@@ -179,7 +179,7 @@ def d_prior(current, reuse_variables=False):
     if reuse_variables:
         tf.compat.v1.get_variable_scope().reuse_variables()
 
-    with tf.compat.v1.variable_scope("d_prior") as scope:
+    with tf.compat.v1.variable_scope("D_prior") as scope:
 
         #  FC blocks 1-3 (full connection+batch_nom+relu)
         for index, num_filters in enumerate([64,32,16]):
