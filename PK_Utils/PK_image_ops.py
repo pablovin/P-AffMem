@@ -47,7 +47,7 @@ def save_batch_images(
         frame[(ind_row * img_h):(ind_row * img_h + img_h), (ind_col * img_w):(ind_col * img_w + img_w), :] = image
     cv2.imwrite(save_path, frame)
 
-def save_output(input_image, output, path, image_value_range = (-1,1), size_frame=[6, 7]):
+def save_output(input_image, output, path, image_value_range = (-1,1), size_frame=[6, 7], batchSize=25):
 
     # Tile black background
     black_image = np.zeros((1, 96, 96, 3))
@@ -56,12 +56,22 @@ def save_output(input_image, output, path, image_value_range = (-1,1), size_fram
     # Build final image from components
     # input_frame = np.concatenate([black_image2,output[:4],black_image, input_image, black_image,output[4:8],black_image3,output[8:12],black_image3,output[12:]])
 
-    input_frame = np.concatenate([black_image2,output[:5],
-                                  black_image2, output[5:10],
-                                  input_image,  black_image,output[10:15],
-                                  black_image2,output[15:20],
-                                  black_image2, output[20:25],
-                                  ])
+    if batchSize == 25:
+        input_frame = np.concatenate([black_image2,output[:5],
+                                      black_image2, output[5:10],
+                                      input_image,  black_image,output[10:15],
+                                      black_image2,output[15:20],
+                                      black_image2, output[20:25],
+                                      ])
+    else:
+        input_frame = np.concatenate([black_image2, output[:7],
+                                      black_image2, output[7:14],
+                                      input_image, black_image, output[14:21],
+                                      black_image2, output[21:28],
+                                      black_image2, output[28:35],
+                                      black_image2, output[35:42],
+                                      black_image2, output[32:49]
+                                      ])
 
 
     # Transform into savable format

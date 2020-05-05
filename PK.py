@@ -614,19 +614,26 @@ class Model(object):
         images = images[:1, :, :, :]
         # valence
 
-        valence = np.arange(0.75, -0.751, -0.375)
-        valence = np.repeat(valence, 5).reshape((25, 1))
-        # valence = np.repeat(valence, 7, axis=0)
-        # arousal
-        arousal = [np.arange(0.75, -0.751, -0.375)]
-        arousal = np.repeat(arousal, 5).reshape((25, 1))
-        arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((25, 1))
-
-        # arousal = np.repeat(arousal, 7, axis=0)
-        # arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((49, 1))
-        # arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((48, 1))
-        query_images = np.tile(images, (25, 1, 1, 1))
-
+        if self.size_batch == 25:
+            valence = np.arange(0.75, -0.751, -0.375)
+            valence = np.repeat(valence, 5).reshape((25, 1))
+            # valence = np.repeat(valence, 7, axis=0)
+            # arousal
+            arousal = [np.arange(0.75, -0.751, -0.375)]
+            arousal = np.repeat(arousal, 5).reshape((25, 1))
+            arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((25, 1))
+            query_images = np.tile(images, (25, 1, 1, 1))
+            size_frame = (6,7)
+        elif self.size_batch == 49:
+            valence = np.arange(0.75, -0.751, -0.25)
+            valence = np.repeat(valence, 7).reshape((49, 1))
+            # valence = np.repeat(valence, 7, axis=0)
+            # arousal
+            arousal = [np.arange(0.75, -0.751, -0.25)]
+            arousal = np.repeat(arousal, 7).reshape((49, 1))
+            arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((499, 1))
+            query_images = np.tile(images, (49, 1, 1, 1))
+            size_frame = (8, 9)
 
         z, G = self.session.run(
             [self.z, self.G],
@@ -640,7 +647,7 @@ class Model(object):
             input_image=images,
             output=G,
             path=os.path.join(test_dir, name),
-            image_value_range = image_value_range
+            image_value_range = image_value_range, size_frame = size_frame
         )
 
 

@@ -23,6 +23,7 @@ image_value_range = (-1, 1)
 
 
 """GCloud"""
+size_batch=49
 save_dir='/home/pablovin/dataset/AffectNet/ExperimentLog_Dem/' #GCloud
 data_path = "/home/pablo/dataset/AffectNet/AffectNetProcessed_Training/" #GCloud
 validation_path  ="/home/pablo/dataset/AffectNet/AffectNetProcessed_Validation/"
