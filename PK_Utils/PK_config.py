@@ -2,8 +2,7 @@
 NETWORK CONFIG FILE
 
 """
-# min-batch size
-size_batch=25
+
 
 # size of hidden vector z
 num_z_channels=50 	
@@ -15,6 +14,8 @@ image_value_range = (-1, 1)
 
 
 # """Local"""
+## min-batch size
+# size_batch=25
 # save_dir='/home/pablo/Documents/Datasets/AffectNet/ExperimentLog_1kkk_noEmotion/' #Local
 # vggMat = "/home/pablo/Documents/Datasets/VGG-Face/vgg-face.mat" #Local
 # data_path = "/home/pablo/Documents/Datasets/AffectNet/AffectNetProcessed_Training/" #Local
@@ -31,6 +32,8 @@ vggMat = "/home/pablo/dataset/AffectNet/vgg-face.mat" #Gcloud
 device = '/device:CPU:0'
 
 # # """CoLab"""
+## min-batch size
+# size_batch=25
 # save_dir='/content/dataset/ExperimentLog/'
 # data_path = "/content/dataset/AffectNetProcessed_Training/" #
 # validation_path  ="/content/dataset/AffectNetProcessed_Validation/"

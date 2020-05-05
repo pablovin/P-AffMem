@@ -614,7 +614,7 @@ class Model(object):
         images = images[:1, :, :, :]
         # valence
 
-        if self.size_batch == 25:
+        if size_batch == 25:
             valence = np.arange(0.75, -0.751, -0.375)
             valence = np.repeat(valence, 5).reshape((25, 1))
             # valence = np.repeat(valence, 7, axis=0)
@@ -624,7 +624,7 @@ class Model(object):
             arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((25, 1))
             query_images = np.tile(images, (25, 1, 1, 1))
             size_frame = (6,7)
-        elif self.size_batch == 49:
+        elif size_batch == 49:
             valence = np.arange(0.75, -0.751, -0.25)
             valence = np.repeat(valence, 7).reshape((49, 1))
             # valence = np.repeat(valence, 7, axis=0)
