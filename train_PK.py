@@ -12,4 +12,4 @@ with tf.compat.v1.Session(config=config) as sess:
     print ("Initializing training!")
 
     # with tf.device("/device:GPU:0"):
-    pk.train(num_epochs=2, use_trained_model=True)
+    pk.train(num_epochs=2, use_trained_model=False)
