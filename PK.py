@@ -96,7 +96,7 @@ class Model(object):
                 # #
 
                 if self.useEmotion:
-                    self.D_emArousal_original, self.D_emValence_original, self.D_em_arousal_logits_original, self.D_em_valence_logits_original = d_em(self.z, reuse_variables=True)
+                    self.D_emArousal, self.D_emValence, self.D_em_arousal_logits, self.D_em_valence_logits = d_em(self.z, reuse_variables=True)
                 # self.D_emArousal_G, self.D_emValence_G, self.D_em_arousal_logits_G, self.D_em_valence_logits_G = d_em(self.G, reuse_variables=True)
 
 
