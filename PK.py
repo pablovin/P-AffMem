@@ -119,12 +119,15 @@ class Model(object):
             # -----------------------------------------------------------------------
 
             # loss function of discriminator on z
-            self.D_z_loss_prior = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(logits=self.Dz_prior_logits, labels=tf.ones_like(self.Dz_prior_logits))
-            )
+
 
             self.D_z_loss_z = tf.reduce_mean(
-                tf.nn.sigmoid_cross_entropy_with_logits(logits= 1 - self.Dz_logits, labels=tf.zeros_like(self.Dz_logits))
+                tf.nn.sigmoid_cross_entropy_with_logits(logits= self.Dz_logits, labels=tf.ones_like(self.Dz_logits))
+            )
+
+            self.D_z_loss_prior = tf.reduce_mean(
+                tf.nn.sigmoid_cross_entropy_with_logits(logits=1 - self.Dz_prior_logits,
+                                                        labels=tf.zeros_like(self.Dz_prior_logits))
             )
 
             # self.E_z_loss = tf.reduce_mean(
