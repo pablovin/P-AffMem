@@ -6,7 +6,7 @@ config.gpu_options.allow_growth = True
 # sess = tf.Session(config=config)
 
 with tf.compat.v1.Session(config=config) as sess:
-    pk = PK.Model(sess, useEmotion=True)
+    pk = PK.Model(sess, useEmotion=False)
 
     print ("-----------")
     print ("Initializing training!")
