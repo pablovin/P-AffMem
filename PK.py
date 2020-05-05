@@ -219,7 +219,7 @@ class Model(object):
             # self.D_em_loss_summary = tf.compat.v1.summary.histogram('D_em_loss', self.D_em_loss)
             # self.D_em_ccc_arousal_summary = tf.compat.v1.summary.histogram('D_em_ccc_arousal', self.D_em_ccc_arousal)
             # self.D_em_ccc_valence_summary = tf.compat.v1.summary.histogram('D_em_ccc_valence', self.D_em_ccc_valence)
-            self.vgg_loss_summary = tf.summary.scalar('VGG_loss', self.vgg_loss)
+            # self.vgg_loss_summary = tf.summary.scalar('VGG_loss', self.vgg_loss)
             #
             # for saving the graph and variables
             self.saver = tf.compat.v1.train.Saver(max_to_keep=10)
