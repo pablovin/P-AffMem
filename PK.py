@@ -631,7 +631,7 @@ class Model(object):
             # arousal
             arousal = [np.arange(0.75, -0.751, -0.25)]
             arousal = np.repeat(arousal, 7).reshape((49, 1))
-            arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((499, 1))
+            arousal = np.asarray([item for sublist in arousal for item in sublist]).reshape((49, 1))
             query_images = np.tile(images, (49, 1, 1, 1))
             size_frame = (8, 9)
 
