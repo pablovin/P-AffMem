@@ -472,11 +472,11 @@ class Model(object):
                     )
 
                     print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tLoss_Total=%.4f" %
-                          (epoch + 1, num_epochs, ind_batch + 1, num_batches, lossTotal))
-                    print("\tL_rec=%.4f\tL_Iden=%.4f\tL_Z=%.4f\tL_Img=%.4f\tL_em=%.4f" % (lossRec, lossIden, lossLz, lossDimg,lossDem))
-                    print("\tL_Z_Prior=%.4f\tL_Z_original=%.4f" % (lossLzPrior, lossLzOriginal))
-                    print("\tL_Img_Input=%.4f\tL_Img_Generated=%.4f" % (lossDimgInput, lossDimgGenerated))
-                    print("\tL_Dem_Arousal=%.4f\tL_Dem_Valence=%.4f" % (lossDemArousal, lossDemValence))
+                          (epoch + 1, num_epochs, ind_batch + 1, num_batches, lossTotal), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_rec=%.4f\tL_Iden=%.4f\tL_Z=%.4f\tL_Img=%.4f\tL_em=%.4f" % (lossRec, lossIden, lossLz, lossDimg,lossDem), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_Z_Prior=%.4f\tL_Z_original=%.4f" % (lossLzPrior, lossLzOriginal), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_Img_Input=%.4f\tL_Img_Generated=%.4f" % (lossDimgInput, lossDimgGenerated), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_Dem_Arousal=%.4f\tL_Dem_Valence=%.4f" % (lossDemArousal, lossDemValence), file=open(save_dir+"Log.txt", "a"))
 
                 else:
                     _, lossTotal, lossRec, lossIden, lossLz, lossLzPrior, lossLzOriginal, lossDimg, lossDimgInput, lossDimgGenerated = self.session.run(
@@ -501,10 +501,10 @@ class Model(object):
                     )
 
                     print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tLoss_Total=%.4f"%
-                          (epoch + 1, num_epochs, ind_batch + 1, num_batches, lossTotal))
-                    print("\tL_rec=%.4f\tL_Iden=%.4f\tL_Z=%.4f\tL_Img=%.4f" % (lossRec, lossIden, lossLz,lossDimg))
-                    print("\tL_Z_Prior=%.4f\tL_Z_original=%.4f" % (lossLzPrior, lossLzOriginal))
-                    print("\tL_Img_Input=%.4f\tL_Img_Generated=%.4f" % (lossDimgInput, lossDimgGenerated))
+                          (epoch + 1, num_epochs, ind_batch + 1, num_batches, lossTotal), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_rec=%.4f\tL_Iden=%.4f\tL_Z=%.4f\tL_Img=%.4f" % (lossRec, lossIden, lossLz,lossDimg), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_Z_Prior=%.4f\tL_Z_original=%.4f" % (lossLzPrior, lossLzOriginal), file=open(save_dir+"Log.txt", "a"))
+                    print("\tL_Img_Input=%.4f\tL_Img_Generated=%.4f" % (lossDimgInput, lossDimgGenerated), file=open(save_dir+"Log.txt", "a"))
 
                 # print("\nEpoch: [%3d/%3d] Batch: [%3d/%3d]\n\tEG_err=%.4f\tVGG=%.4f\tEm=%.4f" %
                 #     (epoch+1, num_epochs, ind_batch+1, num_batches, EG_err, vgg, em))
