@@ -27,7 +27,7 @@ networkx==2.2
 numpy==1.18.1
 opencv-python==4.1.2.30
 packaging==20.1
-Pillow==7.0.0
+Pillow==9.0.1
 pluggy==0.13.1
 protobuf==3.11.3
 py==1.8.1
