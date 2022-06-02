@@ -12,7 +12,7 @@ gast==0.3.3
 google-pasta==0.1.8
 grpcio==1.27.1
 h5py==2.10.0
-html5lib==0.9999999
+html5lib==0.99999999
 hyperopt==0.2.3
 imageio==2.8.0
 imageio-ffmpeg==0.4.1
