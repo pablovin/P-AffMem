@@ -24,7 +24,7 @@ kiwisolver==1.1.0
 Markdown==3.2.1
 more-itertools==8.2.0
 networkx==2.2
-numpy==1.18.1
+numpy==1.22.0
 opencv-python==4.1.2.30
 packaging==20.1
 Pillow==7.0.0
